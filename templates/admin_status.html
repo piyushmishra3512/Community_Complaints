@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="card-title">Admin Status</h4>
+          <dl class="row mt-3">
+            <dt class="col-sm-4">Database path</dt>
+            <dd class="col-sm-8"><code>{{ info.db_path }}</code></dd>
+
+            <dt class="col-sm-4">Exists</dt>
+            <dd class="col-sm-8">{{ 'Yes' if info.exists else 'No' }}</dd>
+
+            <dt class="col-sm-4">Size (bytes)</dt>
+            <dd class="col-sm-8">{{ info.size_bytes or 'N/A' }}</dd>
+
+            <dt class="col-sm-4">Total complaints</dt>
+            <dd class="col-sm-8">{{ info.complaint_count }}</dd>
+          </dl>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_list') }}">Back to Complaints</a>
+            <a class="btn btn-sm btn-outline-info ms-2" href="{{ url_for('admin_check_password') }}">Debug: Check Password</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

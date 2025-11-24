@@ -1,0 +1,158 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-start gap-3">
+      <div>
+        <h3 class="mb-0 hero-title">Reports</h3>
+        <div class="muted-small">Manage incoming reports and update status</div>
+      </div>
+    </div>
+    <div>
+      <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_status') }}">Status</a>
+    </div>
+  </div>
+
+  {# Summary cards: compute counts from current complaints list #}
+  {% set total = complaints|length if complaints is defined else 0 %}
+  {% set open_count = complaints|selectattr('status','equalto','open')|list|length if complaints is defined else 0 %}
+  {% set inprog_count = complaints|selectattr('status','equalto','in-progress')|list|length if complaints is defined else 0 %}
+  {% set closed_count = complaints|selectattr('status','equalto','closed')|list|length if complaints is defined else 0 %}
+
+  <div class="row g-3 mb-3">
+    <div class="col-sm-6 col-md-3">
+      <div class="card p-2 shadow-sm">
+        <div class="d-flex align-items-center">
+          <div class="me-3 display-6 text-primary"><i class="bi bi-list-check"></i></div>
+          <div>
+            <div class="small text-muted">Total</div>
+            <div class="h5 mb-0">{{ total }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card p-2 shadow-sm">
+        <div class="d-flex align-items-center">
+          <div class="me-3 text-warning"><i class="bi bi-exclamation-triangle-fill fs-3"></i></div>
+          <div>
+            <div class="small text-muted">Open</div>
+            <div class="h5 mb-0">{{ open_count }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card p-2 shadow-sm">
+        <div class="d-flex align-items-center">
+          <div class="me-3 text-info"><i class="bi bi-arrow-repeat fs-3"></i></div>
+          <div>
+            <div class="small text-muted">In Progress</div>
+            <div class="h5 mb-0">{{ inprog_count }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card p-2 shadow-sm">
+        <div class="d-flex align-items-center">
+          <div class="me-3 text-success"><i class="bi bi-check-circle-fill fs-3"></i></div>
+          <div>
+            <div class="small text-muted">Closed</div>
+            <div class="h5 mb-0">{{ closed_count }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-auto">
+      <label class="form-label small">Status</label>
+      <select name="status" class="form-select form-select-sm">
+        <option value="">Any</option>
+        <option value="open" {% if request.args.get('status')=='open' %}selected{% endif %}>Open</option>
+        <option value="in-progress" {% if request.args.get('status')=='in-progress' %}selected{% endif %}>In Progress</option>
+        <option value="closed" {% if request.args.get('status')=='closed' %}selected{% endif %}>Closed</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <label class="form-label small">From</label>
+      <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request.args.get('date_from','') }}">
+    </div>
+    <div class="col-auto">
+      <label class="form-label small">To</label>
+      <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request.args.get('date_to','') }}">
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-sm btn-primary">Apply</button>
+    </div>
+    <div class="col-auto">
+      {% set qs = request.query_string.decode('utf-8') if request.query_string else '' %}
+      <a class="btn btn-sm btn-success" href="{{ url_for('admin_export') }}{% if qs %}?{{ qs }}{% endif %}">Export CSV</a>
+      <a class="btn btn-sm btn-info text-white" href="{{ url_for('admin_export_json') }}{% if qs %}?{{ qs }}{% endif %}">Export JSON</a>
+    </div>
+  </form>
+
+  {% if complaints %}
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Name</th>
+                <th>Room</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in complaints %}
+              <tr>
+                <td class="text-muted">#{{ c.id }}</td>
+                <td style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ c.title }}</td>
+                <td>{{ c.name or 'Anonymous' }}</td>
+                <td class="muted-small">{{ c.room or '—' }}</td>
+                <td class="muted-small">{{ c.address or '—' }}</td>
+                <td class="muted-small">{% if c.phone %}<a href="tel:{{ c.phone }}">{{ c.phone }}</a>{% else %}—{% endif %}</td>
+                <td style="min-width:150px;">
+                  {% if c.status == 'open' %}
+                    <span class="badge bg-warning text-dark">Open</span>
+                  {% elif c.status == 'in-progress' %}
+                    <span class="badge bg-info text-dark">In Progress</span>
+                  {% elif c.status == 'closed' %}
+                    <span class="badge bg-success">Closed</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ c.status }}</span>
+                  {% endif %}
+                </td>
+                <td class="muted-small">{{ c.created_at }}</td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a class="btn btn-sm btn-primary" href="{{ url_for('view_complaint', complaint_id=c.id) }}">View</a>
+                    <form method="post" action="{{ url_for('delete_complaint', complaint_id=c.id) }}" class="d-inline" onsubmit="return confirm('Delete report #{{ c.id }}?');">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="card">
+      <div class="card-body">No complaints yet.</div>
+    </div>
+  {% endif %}
+
+{% endblock %}
+

@@ -1,0 +1,6 @@
+# Ignore SQLite database in instance/
+instance/*.db
+
+# Python cache
+__pycache__/
+*.py[cod]

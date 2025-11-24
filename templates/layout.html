@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Hostel Complaints</title>
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+      <div class="container">
+          <a class="navbar-brand d-flex align-items-center" href="{{ url_for('submit') }}">
+          <i class="bi bi-tools me-2" style="font-size:1.15rem"></i>
+          <div>
+            <div style="line-height:1">Community Maintenance</div>
+            <small class="text-white-50 small">Report neighborhood issues anonymously or with details</small>
+          </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="#navCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navCollapse">
+          <ul class="navbar-nav ms-auto align-items-lg-center">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('submit') }}"><i class="bi bi-pencil-square me-1"></i>Report</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_login') }}"><i class="bi bi-shield-lock-fill me-1"></i>Admin</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'success' if category=='success' else ('danger' if category=='danger' else 'info') }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center mt-5 mb-3 text-muted small">
+      Simple complaints app — built for demo use
+    </footer>
+
+    <!-- Bootstrap JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+
+    <!-- Toast container: flash messages will be converted into toasts -->
+    <div class="toast-container-fixed" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+    <!-- confetti lib (small, CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+      // Convert any flashed alert elements into Bootstrap toasts for subtle UX
+      (function(){
+        try{
+          const container = document.getElementById('toastContainer');
+          if (!container) return;
+          // Find flash alerts rendered in the page
+          const alerts = Array.from(document.querySelectorAll('main .alert'));
+          alerts.forEach(a => {
+            const isSuccess = a.classList.contains('alert-success');
+            const isDanger = a.classList.contains('alert-danger');
+            const msg = a.textContent.trim();
+
+            // Build toast element
+            const t = document.createElement('div');
+            t.className = 'toast align-items-center text-bg-light border-0';
+            t.setAttribute('role','alert');
+            t.setAttribute('aria-live','assertive');
+            t.setAttribute('aria-atomic','true');
+            t.innerHTML = `
+              <div class="d-flex">
+                <div class="toast-body">${msg}</div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+            `;
+            container.appendChild(t);
+
+            // Initialize and show using Bootstrap Toast
+            const bsToast = new bootstrap.Toast(t, { delay: 3800 });
+            bsToast.show();
+
+            // Trigger confetti for success messages (submission or status change)
+            // Detect by success class or message text containing keywords.
+            const confettiKeywords = ['Status updated', 'Report Submitted', 'Report Submitted', 'Complaint Submitted', 'Status updated successfully', 'Status updated'];
+            const hasKeyword = confettiKeywords.some(k => msg.indexOf(k) !== -1);
+            if (isSuccess || hasKeyword) {
+              // Slight delay so toast animation starts first
+              setTimeout(() => {
+                try{ confetti({ particleCount: 140, spread: 60, origin: { y: 0.6 } }); } catch(e){}
+              }, 240);
+            }
+
+            // Remove original alert from DOM to avoid duplicate visuals
+            a.remove();
+          });
+        }catch(e){
+          // Fallback silently
+          console.error('Toast init error', e);
+        }
+      })();
+    </script>
+  </body>
+</html>

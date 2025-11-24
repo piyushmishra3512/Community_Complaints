@@ -1,0 +1,105 @@
+:root{
+	--brand-500: #0069ff;
+	--brand-600: #0051d4;
+	--accent: #0ea5a2;
+	--muted: #6c757d;
+	--bg: #f4f7fb;
+}
+body{
+	font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+	background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+	color: #123;
+}
+
+/* Cards and surfaces */
+.card{
+	border-radius:12px;
+	box-shadow: 0 6px 18px rgba(28,40,50,0.06);
+	border: 0;
+}
+.card .card-title{font-weight:700}
+
+/* Navbar tweaks */
+.navbar{background:linear-gradient(90deg,var(--brand-500),var(--brand-600));}
+.navbar-brand{font-weight:700; color: #fff !important}
+.navbar-brand small{opacity:.9}
+.nav-link{color:rgba(255,255,255,0.92) !important}
+
+/* Hero / page header */
+.page-hero{
+	background: linear-gradient(90deg, rgba(0,105,255,0.06), rgba(14,165,162,0.04));
+	padding: 1.25rem 1.5rem;
+	border-radius: 12px;
+	margin-top: 1.25rem;
+}
+.hero-title{font-size:1.45rem; font-weight:700; margin:0}
+.hero-sub{color:var(--muted); margin:0}
+
+/* Form controls */
+.form-control:focus{
+	border-color: var(--brand-500);
+	box-shadow: 0 0 0 0.15rem rgba(0,105,255,0.12);
+}
+.form-label{font-weight:600}
+
+/* Primary button - gradient */
+.btn-primary{
+	background: linear-gradient(180deg,var(--brand-500),var(--brand-600));
+	border: none;
+	box-shadow: 0 6px 18px rgba(0,105,255,0.12);
+}
+.btn-outline-secondary{border-radius:8px}
+
+/* Success card */
+.success-illustration{
+	width:82px; height:82px; border-radius:50%;
+	display:inline-flex; align-items:center; justify-content:center;
+	background: linear-gradient(135deg,#e6f4ff,#e8fff8);
+	color: var(--brand-600); font-size:2.4rem;
+}
+
+/* Table tweaks */
+.table thead th{background:transparent; color:#222; font-weight:700}
+.table td, .table th{vertical-align:middle}
+
+/* Preview image */
+#imgPreview{border-radius:8px; max-height:320px; object-fit:cover}
+
+/* Footer */
+footer{opacity:.85; padding:2rem 0}
+
+/* Small responsive tweaks */
+@media (max-width: 576px) {
+	.hero-title{font-size:1.15rem}
+}
+
+/* Utility */
+.muted-small{color:var(--muted); font-size:.92rem}
+
+/* Button micro-interactions */
+.btn{
+	transition: transform .14s cubic-bezier(.2,.8,.2,1), box-shadow .14s ease, opacity .12s ease;
+}
+.btn:hover, .btn:focus{
+	transform: translateY(-3px);
+	box-shadow: 0 10px 24px rgba(18,52,99,0.08);
+}
+.btn:active{transform: translateY(-1px)}
+
+/* Toast container placement */
+.toast-container-fixed{
+	position: fixed;
+	top: 1rem;
+	right: 1rem;
+	z-index: 1080;
+	display: flex;
+	flex-direction: column;
+	gap: .6rem;
+}
+.toast{
+	border-radius: 10px;
+	box-shadow: 0 8px 24px rgba(17,24,39,0.08);
+}
+.toast .toast-body{font-weight:600}
+
+

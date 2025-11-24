@@ -1,0 +1,62 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="card-title text-center mb-3">Admin Login</h4>
+          <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <div class="input-group">
+                <input class="form-control" type="password" name="password" id="adminPassword" required>
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-pressed="false" aria-label="Show password" title="Show password">
+                  <!-- Eye icon (shows) by default -->
+                  <svg id="iconEye" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8z"/>
+                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="#fff"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="d-grid">
+              <button class="btn btn-primary" type="submit">Login</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function(){
+      const toggle = document.getElementById('togglePassword');
+      const pwd = document.getElementById('adminPassword');
+      const icon = document.getElementById('iconEye');
+      // eye (visible) and eye-slash (hidden) SVG paths
+      const eyeSvg = '<svg id="iconEye" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">\n                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8z"/>\n                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="#fff"/>\n                  </svg>';
+      const eyeSlashSvg = '<svg id="iconEye" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">\n                    <path d="M13.359 11.238C15.06 9.853 16 8 16 8s-3-5.5-8-5.5c-1.04 0-1.99.173-2.854.482L3.08 1.915 1.97 3.026l1.12 1.12C1.87 6.036 1 7.93 1 8c0 .07.87 1.964 3.09 3.854l-.54.54 1.111 1.111.54-.54A7.91 7.91 0 0 0 8 13.5c5 0 8-5.5 8-5.5s-.94-1.853-2.641-3.238L13.36 11.238z"/>\n                    <path d="M11.646 10.354a3 3 0 0 1-4.243-4.243L11.647 10.354z"/>\n                  </svg>';
+      if (!toggle || !pwd) return;
+      toggle.addEventListener('click', () => {
+        if (pwd.type === 'password') {
+          pwd.type = 'text';
+          toggle.setAttribute('aria-pressed','true');
+          toggle.setAttribute('title','Hide password');
+          toggle.setAttribute('aria-label','Hide password');
+          toggle.innerHTML = eyeSlashSvg;
+        } else {
+          pwd.type = 'password';
+          toggle.setAttribute('aria-pressed','false');
+          toggle.setAttribute('title','Show password');
+          toggle.setAttribute('aria-label','Show password');
+          toggle.innerHTML = eyeSvg;
+        }
+        pwd.focus();
+      });
+    })();
+  </script>
+{% endblock %}
+
