@@ -169,7 +169,7 @@ def create_app():
                     row = conn.execute('SELECT * FROM complaints WHERE access_code = ?', (access_code,)).fetchone()
                 conn.close()
                 if row:
-                    return render_template('view_complaint.html', c=row, is_public=True)
+                    return render_template('view_complaint.html', c=dict(row), is_public=True)
                 else:
                     flash('Complaint not found. Please check your access code or complaint ID.', 'danger')
         return render_template('track_complaint.html')
@@ -273,7 +273,7 @@ def create_app():
         if not row:
             flash('Complaint not found', 'warning')
             return redirect(url_for('admin_list'))
-        return render_template('view_complaint.html', c=row)
+        return render_template('view_complaint.html', c=dict(row))
 
     @app.route('/admin/complaint/<int:complaint_id>/status', methods=['POST'])
     @admin_required
