@@ -11,9 +11,18 @@ from werkzeug.utils import secure_filename
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf, CSRFError
 
+# For serverless (e.g., Vercel), use /tmp (writable, but ephemeral).
+# For local/dev, default to project dir unless DATA_ROOT is explicitly set.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-DB_PATH = os.path.join(BASE_DIR, 'instance', 'complaints.db')
+if os.environ.get('DATA_ROOT'):
+    DATA_ROOT = os.environ['DATA_ROOT']
+elif os.environ.get('VERCEL'):
+    DATA_ROOT = '/tmp'
+else:
+    DATA_ROOT = BASE_DIR
+
+UPLOAD_FOLDER = os.path.join(DATA_ROOT, 'uploads')
+DB_PATH = os.path.join(DATA_ROOT, 'instance', 'complaints.db')
 
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
