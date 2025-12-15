@@ -357,8 +357,8 @@ def create_app():
                 r['title'] or '',
                 r['description'] or '',
                 r['image'] or '',
-                r.get('address') or '',
-                r.get('phone') or '',
+                r['address'] if 'address' in r.keys() else '',
+                r['phone'] if 'phone' in r.keys() else '',
                 r['status'] or '',
                 r['created_at'] or ''
             ])
@@ -376,7 +376,15 @@ def create_app():
         conn = get_db_connection()
         rows = conn.execute(sql, params).fetchall()
         conn.close()
-        items = [dict(r) for r in rows]
+        items = []
+        for r in rows:
+            d = dict(r)
+            # ensure optional keys exist as strings
+            if 'address' not in d:
+                d['address'] = ''
+            if 'phone' not in d:
+                d['phone'] = ''
+            items.append(d)
         return jsonify(items)
 
     @app.route('/admin/check_password', methods=['GET', 'POST'])
