@@ -2,59 +2,152 @@
 {% block content %}
   <div class="row justify-content-center">
     <div class="col-lg-8 col-md-10">
-      <div class="page-hero">
-        <div class="d-flex align-items-center gap-3">
-          <div class="me-2 display-6 text-primary"><i class="bi bi-tools"></i></div>
-          <div>
-            <h2 class="hero-title">Report an Issue — Community Maintenance</h2>
-            <p class="hero-sub">Share details to help the community maintain shared spaces. You can file anonymously.</p>
+      <div class="modern-hero">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <i class="bi bi-megaphone-fill me-2"></i>Report Issues
+          </div>
+          <h1 class="hero-main-title">Report a Community Issue</h1>
+          <p class="hero-description">Help us keep your neighborhood safe and well-maintained. Report issues quickly and track their progress in real-time.</p>
+          <div class="hero-features">
+            <div class="hero-feature-item">
+              <i class="bi bi-shield-check text-success"></i>
+              <span>Anonymous Reporting</span>
+            </div>
+            <div class="hero-feature-item">
+              <i class="bi bi-clock-history text-primary"></i>
+              <span>Real-time Tracking</span>
+            </div>
+            <div class="hero-feature-item">
+              <i class="bi bi-camera-video text-info"></i>
+              <span>Photo & Video Support</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="card mt-3">
-        <div class="card-body">
-          <form method="post" enctype="multipart/form-data">
+      <div class="modern-form-card">
+        <div class="form-header">
+          <h3 class="form-title">
+            <i class="bi bi-file-earmark-text me-2"></i>Issue Details
+          </h3>
+          <p class="form-subtitle">Fill in the information below to submit your report</p>
+        </div>
+        <div class="form-body">
+          <form method="post" enctype="multipart/form-data" class="modern-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="mb-3">
-              <label class="form-label">Name <small class="text-muted">(optional)</small></label>
-              <input class="form-control" type="text" name="name" placeholder="Your name">
-            </div>
-            <div class="row">
-              <div class="mb-3 col-md-6">
-                <label class="form-label">Room <small class="text-muted">(optional)</small></label>
-                <input class="form-control" type="text" name="room" placeholder="e.g. 2B-103">
+            <div class="form-section">
+              <h4 class="section-title">Contact Information</h4>
+              <div class="row">
+                <div class="mb-4 col-md-6">
+                  <label class="form-label-modern">
+                    <i class="bi bi-person me-2"></i>Your Name
+                  </label>
+                  <input class="form-control-modern" type="text" name="name" required placeholder="Enter your full name">
+                </div>
+                <div class="mb-4 col-md-6">
+                  <label class="form-label-modern">
+                    <i class="bi bi-telephone me-2"></i>Phone Number
+                  </label>
+                  <input class="form-control-modern" type="tel" name="phone" required placeholder="Your contact number">
+                </div>
               </div>
-              <div class="mb-3 col-md-6">
-                <label class="form-label">Title</label>
-                <input class="form-control" type="text" name="title" required placeholder="Short summary of the issue">
+              <div class="mb-4">
+                <label class="form-label-modern">
+                  <i class="bi bi-door-open me-2"></i>Room/Unit Number
+                </label>
+                <input class="form-control-modern" type="text" name="room" required placeholder="e.g. 2B-103, Unit 5, Apartment 12">
               </div>
             </div>
-            <div class="row">
-              <div class="mb-3 col-md-8">
-                <label class="form-label">Address <small class="text-muted">(where the issue is located)</small></label>
-                <input class="form-control" type="text" name="address" placeholder="Street, building, area">
+
+            <div class="form-section">
+              <h4 class="section-title">Issue Details</h4>
+              <div class="mb-4">
+                <label class="form-label-modern">
+                  <i class="bi bi-pencil-square me-2"></i>Issue Title
+                </label>
+                <input class="form-control-modern" type="text" name="title" id="titleInput" required placeholder="Brief summary of the issue" maxlength="200" aria-describedby="titleCounter">
+                <div id="titleCounter" class="char-counter"><span id="titleCount">0</span>/200</div>
               </div>
-              <div class="mb-3 col-md-4">
-                <label class="form-label">Phone <small class="text-muted">(optional)</small></label>
-                <input class="form-control" type="tel" name="phone" placeholder="Mobile or landline">
+              
+              <div class="mb-4">
+                <label class="form-label-modern">
+                  <i class="bi bi-geo-alt me-2"></i>Location Address
+                </label>
+                <input class="form-control-modern" type="text" name="address" required placeholder="Street address, building name, or area where the issue is located">
+              </div>
+              
+              <div class="mb-4">
+                <label class="form-label-modern">
+                  <i class="bi bi-file-text me-2"></i>Detailed Description
+                </label>
+                <textarea class="form-control-modern" name="description" id="descriptionInput" rows="6" required placeholder="Describe the issue in detail. Include when you noticed it, severity, safety concerns, and any other relevant information..." maxlength="2000" aria-describedby="descriptionCounter"></textarea>
+                <div id="descriptionCounter" class="char-counter"><span id="descriptionCount">0</span>/2000</div>
               </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" name="description" rows="6" required placeholder="Explain the problem and any details that help"></textarea>
+            <div class="form-section">
+              <h4 class="section-title">Media Attachments</h4>
+              <p class="section-subtitle">Photos and videos help us understand and resolve issues faster</p>
+              <div class="row">
+                <div class="mb-4 col-md-6">
+                  <label class="form-label-modern">
+                    <i class="bi bi-image me-2"></i>Upload Photo
+                  </label>
+                <div class="file-upload-area" id="imageUploadArea">
+                  <div class="file-upload-icon"><i class="bi bi-image"></i></div>
+                  <input class="form-control d-none" type="file" name="image" accept="image/*" id="imageInput">
+                  <label for="imageInput" class="btn btn-outline-primary btn-sm mb-2" style="cursor: pointer;">
+                    <i class="bi bi-upload me-1"></i>Choose Image
+                  </label>
+                  <div class="form-text small">PNG, JPG, GIF up to 10MB</div>
+                </div>
+                <div class="mb-3" id="imagePreviewBox" style="display:none;">
+                  <label class="form-label">Image Preview</label>
+                  <div class="position-relative">
+                    <img id="imgPreview" src="#" alt="Preview" class="img-fluid rounded">
+                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" onclick="removePreview('image')" aria-label="Remove image">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+                <div class="mb-4 col-md-6">
+                  <label class="form-label-modern">
+                    <i class="bi bi-camera-video me-2"></i>Upload Video
+                  </label>
+                <div class="file-upload-area" id="videoUploadArea">
+                  <div class="file-upload-icon"><i class="bi bi-camera-video"></i></div>
+                  <input class="form-control d-none" type="file" name="video" accept="video/*" id="videoInput">
+                  <label for="videoInput" class="btn btn-outline-primary btn-sm mb-2" style="cursor: pointer;">
+                    <i class="bi bi-upload me-1"></i>Choose Video
+                  </label>
+                  <div class="form-text small">MP4, MOV, AVI, WebM up to 50MB</div>
+                </div>
+                <div class="mb-3" id="videoPreviewBox" style="display:none;">
+                  <label class="form-label">Video Preview</label>
+                  <div class="position-relative">
+                    <div class="video-preview-container">
+                      <video id="videoPreview" controls>
+                        <source src="#" type="video/mp4">
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" onclick="removePreview('video')" aria-label="Remove video">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Image (optional)</label>
-              <input class="form-control" type="file" name="image" accept="image/*" id="imageInput">
-              <div class="form-text">Upload a photo to illustrate the issue (helpful for quick triage).</div>
-            </div>
-            <div class="mb-3" id="previewBox" style="display:none;">
-              <label class="form-label">Preview</label>
-              <div><img id="imgPreview" src="#" alt="Preview" class="img-fluid rounded" style="max-height:300px;"></div>
-            </div>
-            <div class="d-flex justify-content-end">
-              <button class="btn btn-lg btn-primary" type="submit"><i class="bi bi-send-fill me-1"></i> Submit Report</button>
+            <div class="form-actions">
+              <button class="btn-modern btn-secondary-modern" type="reset" id="resetBtn">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Clear Form
+              </button>
+              <button class="btn-modern btn-primary-modern" type="submit" id="submitBtn">
+                <span class="spinner-border spinner-border-sm d-none me-2" id="submitSpinner" role="status" aria-hidden="true"></span>
+                <i class="bi bi-send-fill me-2" id="submitIcon"></i>
+                <span>Submit Report</span>
+              </button>
             </div>
           </form>
         </div>
@@ -65,17 +158,213 @@
 
 {% block scripts %}
   <script>
-    const input = document.getElementById('imageInput');
-    const previewBox = document.getElementById('previewBox');
-    const imgPreview = document.getElementById('imgPreview');
-    if (input) {
-      input.addEventListener('change', e => {
-        const f = e.target.files && e.target.files[0];
-        if (!f) { previewBox.style.display = 'none'; return; }
-        const url = URL.createObjectURL(f);
-        imgPreview.src = url;
+    // File upload area interactions
+    function setupFileUpload(areaId, inputId, previewBoxId, previewId, type) {
+      const area = document.getElementById(areaId);
+      const input = document.getElementById(inputId);
+      const previewBox = document.getElementById(previewBoxId);
+      const preview = document.getElementById(previewId);
+      
+      if (!area || !input) return;
+      
+      // Click area to trigger file input
+      area.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'LABEL') {
+          input.click();
+        }
+      });
+      
+      // Drag and drop
+      area.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        area.classList.add('dragover');
+      });
+      
+      area.addEventListener('dragleave', () => {
+        area.classList.remove('dragover');
+      });
+      
+      area.addEventListener('drop', (e) => {
+        e.preventDefault();
+        area.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          input.files = files;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+      
+      // File input change
+      input.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) {
+          previewBox.style.display = 'none';
+          return;
+        }
+        
+        // Validate file size
+        const maxSize = type === 'image' ? 10 * 1024 * 1024 : 50 * 1024 * 1024; // 10MB for images, 50MB for videos
+        if (file.size > maxSize) {
+          alert(`File size exceeds the maximum allowed size (${type === 'image' ? '10MB' : '50MB'})`);
+          input.value = '';
+          return;
+        }
+        
+        const url = URL.createObjectURL(file);
+        
+        if (type === 'image') {
+          preview.src = url;
+          preview.onclick = () => openLightbox(url);
+        } else {
+          preview.src = url;
+          preview.load();
+        }
+        
         previewBox.style.display = 'block';
+        previewBox.style.animation = 'fadeInScale 0.4s ease-out';
+        area.style.display = 'none';
       });
     }
+    
+    // Remove preview
+    function removePreview(type) {
+      const input = document.getElementById(type === 'image' ? 'imageInput' : 'videoInput');
+      const previewBox = document.getElementById(type === 'image' ? 'imagePreviewBox' : 'videoPreviewBox');
+      const uploadArea = document.getElementById(type === 'image' ? 'imageUploadArea' : 'videoUploadArea');
+      
+      if (input) input.value = '';
+      if (previewBox) previewBox.style.display = 'none';
+      if (uploadArea) uploadArea.style.display = 'block';
+    }
+    
+    // Initialize file uploads
+    setupFileUpload('imageUploadArea', 'imageInput', 'imagePreviewBox', 'imgPreview', 'image');
+    setupFileUpload('videoUploadArea', 'videoInput', 'videoPreviewBox', 'videoPreview', 'video');
+
+    // Character counters
+    function setupCharCounter(inputId, counterId, countId, maxLength) {
+      const input = document.getElementById(inputId);
+      const counter = document.getElementById(counterId);
+      const countSpan = document.getElementById(countId);
+      if (!input || !counter || !countSpan) return;
+      
+      function updateCounter() {
+        const length = input.value.length;
+        countSpan.textContent = length;
+        counter.classList.remove('warning', 'danger');
+        if (length > maxLength * 0.9) {
+          counter.classList.add('danger');
+        } else if (length > maxLength * 0.75) {
+          counter.classList.add('warning');
+        }
+      }
+      input.addEventListener('input', updateCounter);
+      updateCounter();
+    }
+
+    setupCharCounter('titleInput', 'titleCounter', 'titleCount', 200);
+    setupCharCounter('descriptionInput', 'descriptionCounter', 'descriptionCount', 2000);
+
+    // Form submission with loading state
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitSpinner = document.getElementById('submitSpinner');
+    const submitIcon = document.getElementById('submitIcon');
+    
+    if (form && submitBtn) {
+      form.addEventListener('submit', function(e) {
+        submitBtn.disabled = true;
+        submitSpinner.classList.remove('d-none');
+        submitIcon.style.display = 'none';
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Submitting...';
+      });
+    }
+
+    // Reset button
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all form fields?')) {
+          document.querySelectorAll('.char-counter span').forEach(span => {
+            span.textContent = '0';
+          });
+          document.querySelectorAll('.char-counter').forEach(c => {
+            c.classList.remove('warning', 'danger');
+          });
+        }
+      });
+    }
+
+    // Image/Video lightbox
+    function openLightbox(mediaSrc, isVideo = false) {
+      let lightbox = document.getElementById('imageLightbox');
+      if (!lightbox) {
+        lightbox = document.createElement('div');
+        lightbox.id = 'imageLightbox';
+        lightbox.className = 'image-lightbox';
+        document.body.appendChild(lightbox);
+        lightbox.addEventListener('click', function(e) {
+          if (e.target === lightbox || e.target.classList.contains('close-btn') || e.target.closest('.close-btn')) {
+            closeLightbox();
+          }
+        });
+      }
+      
+      if (isVideo) {
+        lightbox.innerHTML = `
+          <video controls autoplay id="lightboxMedia" style="max-width: 90%; max-height: 90%;">
+            <source src="${mediaSrc}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <button class="close-btn" aria-label="Close lightbox" onclick="closeLightbox()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        `;
+      } else {
+        lightbox.innerHTML = `
+          <img src="${mediaSrc}" alt="Full size preview" id="lightboxMedia">
+          <button class="close-btn" aria-label="Close lightbox" onclick="closeLightbox()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        `;
+      }
+      
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      const lightbox = document.getElementById('imageLightbox');
+      if (lightbox) {
+        const media = lightbox.querySelector('#lightboxMedia');
+        if (media && media.tagName === 'VIDEO') {
+          media.pause();
+        }
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    // Close lightbox on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      }
+    });
+    
+    // Add smooth scroll animations on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const cards = document.querySelectorAll('.card');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.animation = 'slideUpFade 0.6s ease-out';
+            entry.target.style.opacity = '1';
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      cards.forEach(card => observer.observe(card));
+    });
   </script>
 {% endblock %}

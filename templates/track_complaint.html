@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+      <div class="page-hero">
+        <div class="d-flex align-items-center gap-3">
+          <div class="me-2 display-6 text-primary"><i class="bi bi-search"></i></div>
+          <div>
+            <h2 class="hero-title">Track Your Complaint</h2>
+            <p class="hero-sub">Enter your access code or complaint ID to check the status of your report.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-body">
+          <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <label class="form-label">Access Code</label>
+              <input class="form-control" type="text" name="access_code" placeholder="Enter your 10-character access code" maxlength="10" pattern="[a-f0-9]{10}" aria-describedby="accessCodeHelp">
+              <div id="accessCodeHelp" class="form-text">The access code provided when you submitted your complaint</div>
+            </div>
+            <div class="text-center my-3">
+              <span class="text-muted">OR</span>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Complaint ID</label>
+              <input class="form-control" type="number" name="complaint_id" placeholder="Enter your complaint ID" min="1" aria-describedby="complaintIdHelp">
+              <div id="complaintIdHelp" class="form-text">The numeric ID assigned to your complaint</div>
+            </div>
+            <div class="d-grid">
+              <button class="btn btn-lg btn-primary" type="submit">
+                <i class="bi bi-search me-1"></i> Track Complaint
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-info-circle me-2"></i>Need Help?</h5>
+          <p class="mb-0 small text-muted">If you've lost your access code or complaint ID, please contact the administrator. Your access code was displayed on the success page after submission.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

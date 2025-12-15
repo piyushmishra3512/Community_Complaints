@@ -3,20 +3,23 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Hostel Complaints</title>
+    <title>ReportHub — Community Issue Reporting</title>
     <!-- Bootstrap CSS (CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/static/style.css">
   </head>
   <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="navbar navbar-expand-lg navbar-modern" role="navigation" aria-label="Main navigation">
       <div class="container">
           <a class="navbar-brand d-flex align-items-center" href="{{ url_for('submit') }}">
-          <i class="bi bi-tools me-2" style="font-size:1.15rem"></i>
-          <div>
-            <div style="line-height:1">Community Maintenance</div>
-            <small class="text-white-50 small">Report neighborhood issues anonymously or with details</small>
+          <div class="brand-icon-wrapper">
+            <i class="bi bi-clipboard-check-fill"></i>
+          </div>
+          <div class="brand-text">
+            <div class="brand-title">ReportHub</div>
+            <small class="brand-tagline">Your Voice, Our Community</small>
           </div>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="#navCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,14 +27,27 @@
         </button>
         <div class="collapse navbar-collapse" id="navCollapse">
           <ul class="navbar-nav ms-auto align-items-lg-center">
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('submit') }}"><i class="bi bi-pencil-square me-1"></i>Report</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_login') }}"><i class="bi bi-shield-lock-fill me-1"></i>Admin</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('submit') }}">
+                <i class="bi bi-plus-circle me-1"></i>Report Issue
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('track_complaint') }}">
+                <i class="bi bi-search me-1"></i>Track Status
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin_login') }}">
+                <i class="bi bi-shield-lock-fill me-1"></i>Admin Portal
+              </a>
+            </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <main class="container">
+    <main class="container" id="main-content" role="main">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
@@ -46,12 +62,58 @@
       {% block content %}{% endblock %}
     </main>
 
-    <footer class="text-center mt-5 mb-3 text-muted small">
-      Simple complaints app — built for demo use
+    <footer class="text-center mt-5 mb-3 text-muted small" role="contentinfo">
+      <p class="mb-1">Simple complaints app — built for demo use</p>
+      <p class="mb-2">
+        Crafted by <a href="https://www.linkedin.com/in/piyush-mishra-946106306/" target="_blank" rel="noopener" class="fw-semibold">Piyush Mishra</a>
+      </p>
+      <p class="small fw-bold text-dark">Built with Grit. Led by Piyush♥️</p>
     </footer>
 
     <!-- Bootstrap JS (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Smooth scroll and animation utilities -->
+    <script>
+      // Smooth scroll animations on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        // Animate elements on scroll
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = '1';
+              entry.target.style.transform = 'translateY(0)';
+              observer.unobserve(entry.target);
+            }
+          });
+        }, observerOptions);
+        
+        // Observe all cards and animated elements
+        document.querySelectorAll('.card, .page-hero, .table tbody tr').forEach(el => {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(20px)';
+          el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+          observer.observe(el);
+        });
+        
+        // Add stagger animation to table rows
+        document.querySelectorAll('.table tbody tr').forEach((row, index) => {
+          row.style.transitionDelay = `${index * 0.05}s`;
+        });
+      });
+      
+      // Smooth page transitions
+      window.addEventListener('beforeunload', function() {
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity 0.3s ease-out';
+      });
+    </script>
+    
     {% block scripts %}{% endblock %}
 
     <!-- Toast container: flash messages will be converted into toasts -->

@@ -17,11 +17,21 @@ DB_PATH = os.path.join(BASE_DIR, 'instance', 'complaints.db')
 
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'webm', 'mkv'}
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'webm', 'mkv'}
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def is_image_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+
+def is_video_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_VIDEO_EXTENSIONS
 
 
 def create_app():
@@ -74,6 +84,9 @@ def create_app():
         if 'phone' not in cols:
             conn.execute('ALTER TABLE complaints ADD COLUMN phone TEXT')
             cols.append('phone')
+        if 'video' not in cols:
+            conn.execute('ALTER TABLE complaints ADD COLUMN video TEXT')
+            cols.append('video')
         conn.commit()
         conn.close()
 
@@ -86,28 +99,46 @@ def create_app():
     @app.route('/submit', methods=['GET', 'POST'])
     def submit():
         if request.method == 'POST':
-            name = request.form.get('name')
-            room = request.form.get('room')
-            title = request.form.get('title')
-            description = request.form.get('description')
-            address = request.form.get('address')
-            phone = request.form.get('phone')
+            name = request.form.get('name', '').strip()
+            room = request.form.get('room', '').strip()
+            title = request.form.get('title', '').strip()
+            description = request.form.get('description', '').strip()
+            address = request.form.get('address', '').strip()
+            phone = request.form.get('phone', '').strip()
+            
+            # Validate required fields
+            if not name or not room or not title or not description or not address or not phone:
+                flash('Please fill in all required fields', 'danger')
+                return render_template('submit.html')
 
             image_filename = None
-            file = request.files.get('image')
-            if file and file.filename and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
+            video_filename = None
+            
+            # Handle image upload
+            image_file = request.files.get('image')
+            if image_file and image_file.filename and is_image_file(image_file.filename):
+                filename = secure_filename(image_file.filename)
                 timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
                 filename = f"{timestamp}_{filename}"
                 path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(path)
+                image_file.save(path)
                 image_filename = filename
+            
+            # Handle video upload
+            video_file = request.files.get('video')
+            if video_file and video_file.filename and is_video_file(video_file.filename):
+                filename = secure_filename(video_file.filename)
+                timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+                filename = f"{timestamp}_{filename}"
+                path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                video_file.save(path)
+                video_filename = filename
 
             access_code = uuid.uuid4().hex[:10]
             conn = get_db_connection()
             cur = conn.execute(
-                'INSERT INTO complaints (name, room, title, description, image, address, phone, access_code, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                (name, room, title, description, image_filename, address, phone, access_code, datetime.utcnow().isoformat())
+                'INSERT INTO complaints (name, room, title, description, image, video, address, phone, access_code, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                (name, room, title, description, image_filename, video_filename, address, phone, access_code, datetime.utcnow().isoformat())
             )
             conn.commit()
             complaint_id = cur.lastrowid
@@ -116,7 +147,23 @@ def create_app():
             return redirect(url_for('submit_success', complaint_id=complaint_id, access_code=access_code))
         return render_template('submit.html')
 
-    # Tracking feature removed: public tracking endpoint omitted
+    @app.route('/track', methods=['GET', 'POST'])
+    def track_complaint():
+        if request.method == 'POST':
+            access_code = request.form.get('access_code', '').strip()
+            complaint_id = request.form.get('complaint_id', '').strip()
+            if access_code or complaint_id:
+                conn = get_db_connection()
+                if complaint_id:
+                    row = conn.execute('SELECT * FROM complaints WHERE id = ?', (complaint_id,)).fetchone()
+                else:
+                    row = conn.execute('SELECT * FROM complaints WHERE access_code = ?', (access_code,)).fetchone()
+                conn.close()
+                if row:
+                    return render_template('view_complaint.html', c=row, is_public=True)
+                else:
+                    flash('Complaint not found. Please check your access code or complaint ID.', 'danger')
+        return render_template('track_complaint.html')
 
     @app.route('/uploads/<path:filename>')
     def uploaded_file(filename):
@@ -160,10 +207,36 @@ def create_app():
     @app.route('/admin/list')
     @admin_required
     def admin_list():
+        search_query = request.args.get('search', '').strip()
+        status = request.args.get('status', '')
+        date_from = request.args.get('date_from', '')
+        date_to = request.args.get('date_to', '')
+        
         conn = get_db_connection()
-        rows = conn.execute('SELECT * FROM complaints ORDER BY created_at DESC').fetchall()
+        sql = 'SELECT * FROM complaints WHERE 1=1'
+        params = []
+        
+        if search_query:
+            sql += ' AND (title LIKE ? OR description LIKE ? OR name LIKE ? OR room LIKE ? OR address LIKE ?)'
+            search_pattern = f'%{search_query}%'
+            params.extend([search_pattern] * 5)
+        
+        if status:
+            sql += ' AND status = ?'
+            params.append(status)
+        
+        if date_from:
+            sql += ' AND created_at >= ?'
+            params.append(date_from)
+        
+        if date_to:
+            sql += ' AND created_at <= ?'
+            params.append(date_to + 'T23:59:59')
+        
+        sql += ' ORDER BY created_at DESC'
+        rows = conn.execute(sql, params).fetchall()
         conn.close()
-        return render_template('admin_list.html', complaints=rows)
+        return render_template('admin_list.html', complaints=rows, search_query=search_query)
 
     @app.route('/admin/status')
     @admin_required
@@ -211,14 +284,24 @@ def create_app():
     @admin_required
     def delete_complaint(complaint_id):
         conn = get_db_connection()
-        row = conn.execute('SELECT image FROM complaints WHERE id = ?', (complaint_id,)).fetchone()
-        if row and row['image']:
-            try:
-                img_path = os.path.join(app.config['UPLOAD_FOLDER'], row['image'])
-                if os.path.exists(img_path):
-                    os.remove(img_path)
-            except Exception:
-                pass
+        row = conn.execute('SELECT image, video FROM complaints WHERE id = ?', (complaint_id,)).fetchone()
+        if row:
+            # Delete image file
+            if row['image']:
+                try:
+                    img_path = os.path.join(app.config['UPLOAD_FOLDER'], row['image'])
+                    if os.path.exists(img_path):
+                        os.remove(img_path)
+                except Exception:
+                    pass
+            # Delete video file
+            if row.get('video'):
+                try:
+                    vid_path = os.path.join(app.config['UPLOAD_FOLDER'], row['video'])
+                    if os.path.exists(vid_path):
+                        os.remove(vid_path)
+                except Exception:
+                    pass
         conn.execute('DELETE FROM complaints WHERE id = ?', (complaint_id,))
         conn.commit()
         conn.close()
@@ -226,7 +309,7 @@ def create_app():
         return redirect(url_for('admin_list'))
 
     def _build_filtered_query(status=None, date_from=None, date_to=None):
-        sql = 'SELECT id, name, room, title, description, image, address, phone, status, created_at FROM complaints'
+        sql = 'SELECT id, name, room, title, description, image, video, address, phone, status, created_at FROM complaints'
         where = []
         params = []
         if status:
