@@ -62,6 +62,28 @@ def create_app():
         conn.row_factory = sqlite3.Row
         return conn
 
+    # SMS helper (Twilio). Safe no-op if env vars are missing.
+    def send_sms_notification(to_number: str, message: str):
+        account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
+        auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
+        from_number = os.environ.get('TWILIO_FROM_NUMBER')
+        if not (account_sid and auth_token and from_number):
+            return  # SMS not configured; skip silently
+        try:
+            from twilio.rest import Client  # type: ignore
+        except Exception:
+            return  # Twilio not installed or import failed
+        try:
+            client = Client(account_sid, auth_token)
+            client.messages.create(
+                body=message,
+                from_=from_number,
+                to=to_number
+            )
+        except Exception:
+            # Swallow errors so user flow isn't blocked
+            pass
+
     def init_db():
         conn = get_db_connection()
         conn.execute(
@@ -152,6 +174,10 @@ def create_app():
             conn.commit()
             complaint_id = cur.lastrowid
             conn.close()
+
+            # Send SMS confirmation if phone provided and SMS is configured
+            if phone:
+                send_sms_notification(phone, "Your complain is registered.")
             # Redirect to a success page so URL reflects completion and user can refresh safely
             return redirect(url_for('submit_success', complaint_id=complaint_id, access_code=access_code))
         return render_template('submit.html')
